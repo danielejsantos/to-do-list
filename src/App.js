@@ -90,33 +90,85 @@ const List = styled.div`
   align-self: center;
   margin-top: 15px;
   border-radius: 10px;
+
+  @media screen and (max-width: 600px) {
+    width: 300px;
+    height: 100%;
+    margin-bottom: 35px;
+  }
 `;
 
 const ListItem = styled.li`
   font-size: 20px;
   color: #555555;
   padding-left: 15px;
-  padding-top: 10px;
+  list-style: none;
+  text-decoration: ${({ isCompleted }) => isCompleted ? "line-through" : "none"};
+`;
+
+const ItemWrapper = styled.div`
+  border-bottom: 2px solid #629083;
+  margin-top: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
+  padding: 5px 0 5px 0;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+`;
+
+const CloseButton = styled.button`
+  border: none;
+  color: white;
+  font-size: 18px;
+  outline: none;
+  cursor: pointer;
+  background-color: #22745f;
+  border-radius: 5px;
+  margin-right: 10px;
+  width: 25px;
+
+  :hover{
+    background-color: #1a5849;
+    transition: 0.75s;
+  }
 `;
 
 const App = () => {
   const [item, setItem] = useState('');
   const [list, setList] = useState([]);
 
-  const handleSubmit = () => {
-    setList([...list, item])
+  const handleSubmit = (item) => {
+    if (item === '') return null;
+    setList([...list, { item, completed: false }])
     setItem('')
   };
+
+  const handleCompleted = index => {
+    const newList = [...list];
+    newList[index].completed = !newList[index].completed;
+    setList(newList);
+  }
+
+  const handleRemove = index => {
+    const newList = [...list];
+    newList.splice(index, 1);
+    setList(newList);
+  }
 
   return (
     <Container>
       <StyledTitle>To Do List</StyledTitle>
       <Wrapper>
         <Input value={item} onChange={(e => { setItem(e.target.value) })} />
-        <Button onClick={() => handleSubmit()}>Add</Button>
+        <Button onClick={() => handleSubmit(item)}>Add</Button>
       </Wrapper>
       <List>
-        {list.map(listItem => <ListItem>{listItem}</ListItem>)}
+        {list.map((listItem, index) =>
+          <ItemWrapper>
+            <div onClick={() => handleCompleted(index)}><ListItem isCompleted={listItem.completed}>{listItem.item}</ListItem></div>
+            <CloseButton onClick={() => handleRemove(index)}>x</CloseButton>
+          </ItemWrapper>)}
       </List>
     </Container>
   )
